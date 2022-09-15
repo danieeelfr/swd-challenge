@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=dev
+      - MYSQL_ROOT_PASSWORD=dev
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+    ports:
+      - '3306:3306'
+    # network_mode: "host"
+    networks:
+      - base
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "8060:8060" # http
+      - "443:443" # https
+    # network_mode: "host"
+    depends_on:
+      - db
+    links:
+      - db
+    volumes:
+      - ../../../../.:/go
+    networks:
+      - base
+volumes:
+  db:
+    driver: local
+
+networks:
+  base:
+    driver: bridge
+  

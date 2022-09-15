@@ -1,0 +1,36 @@
+FROM golang:1.16.5-alpine3.12 as builder
+
+LABEL maintainer="Daniel Reis by Beta"
+
+RUN mkdir /app
+WORKDIR /app
+
+COPY . .
+# COPY .env .
+
+ENV CGO_ENABLED=0 
+ENV GOOS=linux 
+ENV GOARCH=amd64 
+
+RUN go get -d -v ./...
+RUN go install -v ./...
+RUN go mod download
+RUN go build -a -installsuffix cgo -o app cmd/main.go
+
+FROM scratch
+
+# RUN apk --no-cache add ca-certificates
+
+ENV MYSQL_USER=dev
+ENV MYSQL_PASSWORD=dev
+ENV MYSQL_DB_NAME=dev
+ENV MYSQL_HOST=db
+ENV MYSQL_DB_PORT=3306
+ENV MYSQL_DATABASE=dev
+ENV MYSQL_ROOT_PASSWORD=dev
+
+COPY --from=builder /app/app /app
+
+EXPOSE 8060
+
+ENTRYPOINT ["/app"]
