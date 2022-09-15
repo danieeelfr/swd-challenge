@@ -1,6 +1,10 @@
 # My tech-challenge
 This rest api application can authenticate and authorize users to manage tasks.
 
+## Demo of the manager notification
+![](assets/demo.gif)
+
+
 ## Building and Running
 ### locally 
 
